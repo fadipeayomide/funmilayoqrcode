@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FFA Linktree QR Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #0f172a;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      text-align: center;
+      /* Adjusted to safely hold the 400px high-res QR framework + card padding */
+      max-width: 450px; 
+      width: 100%;
+      box-sizing: border-box;
+    }
+    h2 {
+      color: #0f172a;
+      margin-top: 0;
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+    }
+    #qrcode {
+      margin: 15px auto;
+      padding: 12px;
+      background: #ffffff;
+      border-radius: 16px;
+      display: inline-block;
+      box-shadow: inset 0 0 0 1px #e2e8f0;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    /* Critical Fix: Ensures the generated canvas stays strictly inside bounds */
+    #qrcode canvas, #qrcode img {
+      max-width: 100%;
+      height: auto !important;
+      margin: 0 auto;
+    }
+    button {
+      background: linear-gradient(135deg, #0a1f4d 0%, #1e90ff 100%);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 10px;
+      box-sizing: border-box;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(30, 144, 255, 0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>FFA Linktree QR</h2>
+    <div id="qrcode"></div>
+    <button onclick="downloadQRWithLogo()">Download High-Res QR</button>
+  </div>
+
+  <script>
+    let qr;
+    window.onload = function() {
+      qr = new QRCode(document.getElementById("qrcode"), {
+        text: "https://linktr.ee/fadipefunmilayoa", 
+        width: 400,
+        height: 400,
+        colorDark: "#0f172a",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    };
+
+    function downloadQRWithLogo() {
+        const canvas = document.querySelector("#qrcode canvas");
+        if (!canvas) return;
+
+        const finalCanvas = document.createElement("canvas");
+        finalCanvas.width = 400;
+        finalCanvas.height = 400;
+        const ctx = finalCanvas.getContext("2d");
+
+        // 1. Draw crisp base QR code layout
+        ctx.drawImage(canvas, 0, 0, 400, 400);
+
+        const centerX = 400 / 2;
+        const centerY = 400 / 2;
+        const radius = 42; 
+        
+        // 2. Drop-shadow behind the logo circular container
+        ctx.save();
+        ctx.shadowColor = "rgba(15, 23, 42, 0.3)";
+        ctx.shadowBlur = 12;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 4;
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        ctx.restore();
+
+        // Dark corporate border accent ring
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius - 2, 0, Math.PI * 2);
+        ctx.strokeStyle = "#0a1f4d";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // 3. Render Custom Emblem: "FFA"
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+        ctx.font = "bold 24px 'Poppins', sans-serif"; 
+        ctx.letterSpacing = "-1px"; 
+
+        // First Letter: F (Navy)
+        ctx.fillStyle = "#0a1f4d";
+        ctx.fillText("F", centerX - 16, centerY - 1);
+
+        // Center Letter: F (Bright Blue)
+        ctx.fillStyle = "#1e90ff";
+        ctx.fillText("F", centerX, centerY - 1);
+        
+        // Last Letter: A (Navy)
+        ctx.fillStyle = "#0a1f4d";
+        ctx.fillText("A", centerX + 17, centerY - 1);
+
+        // 4. Trigger download
+        const link = document.createElement("a");
+        link.download = "FFA-Linktree-QR.png";
+        link.href = finalCanvas.toDataURL("image/png");
+        link.click();
+    }
+  </script>
+</body>
+</html>
